@@ -140,7 +140,7 @@ $psCmd = [PowerShell]::Create().AddScript({
     $MainRunspace.SessionStateProxy.SetVariable("uiHash",$uiHash)         
     $MainRunspace.SessionStateProxy.SetVariable("runspaceHash",$runspaceHash)     
     $MainRunspace.SessionStateProxy.SetVariable("jobs",$jobs)     
-    $MainpsCmd = "" | Select PowerShell,Handle
+    $MainpsCmd = "" | Select-Object PowerShell,Handle
     $MainpsCmd.PowerShell = [PowerShell]::Create().AddScript({  
   #endregion
         #region Main Functions
@@ -234,7 +234,7 @@ $psCmd = [PowerShell]::Create().AddScript({
             [int32]$PE_HEADER_ADDR = [System.BitConverter]::ToInt32($data, $PE_POINTER_OFFSET)
             [int32]$machineUint = [System.BitConverter]::ToUInt16($data, $PE_HEADER_ADDR + $MACHINE_OFFSET)
 
-            $result = "" | select FilePath, FileType, Is64Bit
+            $result = "" | Select-Object FilePath, FileType, Is64Bit
             $result.FilePath = $FilePath
             $result.Is64Bit = $false
 
@@ -414,8 +414,8 @@ $psCmd = [PowerShell]::Create().AddScript({
                         LogtoGUI -Message ("Could not map printer: " + $PrinterSharePath  + ". Issue mapping Printer.") -Color "Red" -FontWeight "Bold"
                     }
                     #Update printer Cache
-                    $GlobalHash.Printers = (Get-Printer | Select Name,ComputerName,Type,Portname,ShareName)
-                    $GlobalHash.PrintersScript += (Get-Printer $PrinterSharePath | Select Name,ComputerName,Type,Portname,ShareName)
+                    $GlobalHash.Printers = (Get-Printer | Select-Object Name,ComputerName,Type,Portname,ShareName)
+                    $GlobalHash.PrintersScript += (Get-Printer $PrinterSharePath | Select-Object Name,ComputerName,Type,Portname,ShareName)
                     
                 }
             }else{
@@ -537,14 +537,14 @@ $psCmd = [PowerShell]::Create().AddScript({
         $GlobalHash.ComputerADObject = GetADObject -objectName $GlobalHash.RealWorkstation -objectType "Computer"
         #Create Array of OU that the Computer is in.
         $Temp= @()
-        ((($GlobalHash.ComputerADObject.Parent).Replace("LDAP://","")).split(",")) | ForEach {
+        ((($GlobalHash.ComputerADObject.Parent).Replace("LDAP://","")).split(",")) | ForEach-Object {
            $Temp += $_.split("=")[1]
         }
         $GlobalHash.ComputerOU = $Temp 
         $Temp = $null
 
         #$GlobalHash.MappedDrives = (Get-PSDrive) | Where-Object { $_.DisplayRoot -ne $null}
-        $GlobalHash.Printers = (Get-Printer | Select Name,ComputerName,Type,Portname,ShareName)
+        $GlobalHash.Printers = (Get-Printer | Select-Object Name,ComputerName,Type,Portname,ShareName)
         #Get Print Spooler Status
         If ((Get-Service spooler).Status -eq "Running") {
             $GlobalHash.PrintSpooler = $True
